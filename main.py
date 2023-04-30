@@ -1,4 +1,3 @@
-
 BOARD = [' '] * 9
 
 
@@ -55,58 +54,39 @@ def get_possible_moves(board):
     return moves
 
 
-
-
-
 def check_win(board):
     for i in range(0, 9, 3):
         if board[i] == board[i + 1] == board[i + 2] and board[i] != ' ':
             if board[i] == COMPUTER_SYMBOL:
-                return 1
-            else:
                 return -1
+            else:
+                return 1
     # Sprawdzanie kolumn
     for i in range(3):
         if board[i] == board[i + 3] == board[i + 6] and board[i] != ' ':
             if board[i] == COMPUTER_SYMBOL:
-                return 1
-            else:
                 return -1
+            else:
+                return 1
     # Sprawdzanie przekątnych
     if board[0] == board[4] == board[8] and board[0] != ' ':
         if board[0] == COMPUTER_SYMBOL:
-            return 1
-        else:
             return -1
+        else:
+            return 1
     if board[2] == board[4] == board[6] and board[2] != ' ':
         if board[2] == COMPUTER_SYMBOL:
-            return 1
-        else:
             return -1
+        else:
+            return 1
 
     #remis
     if board_full(board):
         return 0
 
 
-def computer_move(board, computer_symbol):
-    best_score = float('-inf')
-    best_move = None
-
-    for move in get_possible_moves(board):
-        board[move] = computer_symbol
-        score = minimax(False, board)
-        board[move] = ' '
-
-        if score > best_score:
-            best_score = score
-            best_move = move
-
-    board[best_move] = computer_symbol
-    return board[best_move]
-
-
 def undo_move(board, move):
+
     board[move] = ' '
 
 def is_game_over(board):
@@ -129,53 +109,56 @@ def is_game_over(board):
 
     return False
 
-# def minimax(maximizing, board):
-#     if is_game_over(board):
-#         return check_win(board)
-#
-#     result = []
-#     for move in get_possible_moves(board):
-#         computer_move(board, COMPUTER_SYMBOL)
-#         result.append(minimax(not maximizing, board))
-#         undo_move(board, move)
-#
-#     if maximizing:
-#         return max(result)
-#     else:
-#         return min(result)
 
-def minimax(is_maximizing, board):
-    if check_win(board):
-        return -1
-    elif check_win(board):
-        return 1
-    elif board_full(board):
-        return 0
+def computer_move(board, computer_symbol):
+    best_score = float('-inf')
+    best_move = None
 
-    if is_maximizing:
-        best_score = float('-inf')
+    if board == BOARD:  # czyli gdy pusta (komputer zaczyna)
         for move in get_possible_moves(board):
-            board[move] = COMPUTER_SYMBOL
-            score = minimax(False, board)
-            board[move] = ' '
-            best_score = max(score, best_score)
-        return best_score
-    else:
-        best_score = float('inf')
-        for move in get_possible_moves(board):
-            board[move] = PLAYER_SYMBOL
+            board[move] = computer_symbol
             score = minimax(True, board)
             board[move] = ' '
-            best_score = min(score, best_score)
-        return best_score
 
+            if score > best_score:
+                best_score = score
+                best_move = move
+
+        board[best_move] = computer_symbol
+    else:
+        for move in get_possible_moves(board):
+            board[move] = computer_symbol
+            score = minimax(False, board)
+            board[move] = ' '
+
+            if score > best_score:
+                best_score = score
+                best_move = move
+
+        board[best_move] = computer_symbol
+
+def minimax(maximizing, board):
+    if is_game_over(board):
+        return check_win(board)
+
+    result = []
+
+    for move in get_possible_moves(board):
+        if not maximizing:
+            board[move] = COMPUTER_SYMBOL
+        else:
+            board[move] = PLAYER_SYMBOL
+        result.append(minimax(not maximizing, board))
+        undo_move(board, move)
+
+    if maximizing:
+        return max(result)
+    else:
+        return min(result)
 
 
 def main():
-    while True:
-        # Kto zaczyna???
-
-        player_turn = input("Zaczynasz grę czy ma to zrobić komputer? (T/N)")
+        player_turn = input("Zaczynasz grę? (T/N)")
         if player_turn.upper() in ['T', 'TAK']:
             player_turn = True
         elif player_turn.upper() in ['N', 'NIE']:
@@ -200,11 +183,21 @@ def main():
 
             if winner is not None:
                 draw_board(board)
-                print(f"Zwycięzca: {winner}")
+                if winner == 1:
+                    winner = 'Komputer'
+                elif winner == -1:
+                    winner = 'Gracz'
+                else:
+                    winner is None
+                    draw_board(board)
+                    print("\nRemis!")
+                    break
+                print(f"\nZwycięzca: {winner}")
                 break
-            elif board_full(board):
-                draw_board(board)
-                print("Remis")
+
+            # elif board_full(board):
+            #     draw_board(board)
+            #     print("Remis")
 
             player_turn = not player_turn
 
