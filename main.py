@@ -157,14 +157,23 @@ def minimax(maximizing, board):
         return min(result)
 
 
-def main():
-        player_turn = input("Zaczynasz grę? (T/N)")
-        if player_turn.upper() in ['T', 'TAK']:
+def who_starts():
+    player_turn = None
+
+    while player_turn is not True and player_turn is not False:
+        player_turn = input("Kto ma zacząć grę? Wybierz '1' dla gracza, '2' dla komputera: ")
+        if player_turn == '1':
             player_turn = True
-        elif player_turn.upper() in ['N', 'NIE']:
+        elif player_turn == '2':
             player_turn = False
         else:
-            print("Podaj odpowiedz T/N (tak lub nie")
+            print("Wybierz '1' lub '2'.")
+
+    return player_turn
+
+
+def main():
+        player_turn = who_starts()
 
         board = BOARD
 
